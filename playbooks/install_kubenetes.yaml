@@ -1,0 +1,29 @@
+- name: Configure Kubenetes
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt and install dependency
+      apt:
+        pkg:
+          - curl
+        state: latest
+        update_cache: true
+
+    - name: Add GPG apt Key
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Add kubernetes Repository
+      apt_repository:
+        repo: deb http://apt.kubernetes.io/ kubernetes-xenial main
+        state: present
+
+    - name: Update apt and install kubernetes
+      apt:
+        pkg:
+          - kubeadm
+          - kubelet
+          - kubectl
+        state: latest
+        update_cache: true

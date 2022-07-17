@@ -1,0 +1,20 @@
+- name: Configure Minikube
+  hosts: all
+  become: true
+  tasks:
+    - name: Update apt and install dependency
+      apt:
+        pkg:
+          - curl
+        state: latest
+        update_cache: true
+
+    - name: Download MiniKube
+      ansible.builtin.get_url:
+        url: https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+        dest: ./minikube_latest_amd64.deb
+        mode: '0440'
+
+    - name: Install
+      apt: deb="./minikube_latest_amd64.deb"
+      sudo: true

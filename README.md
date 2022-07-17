@@ -24,9 +24,14 @@
 - CICD Workflow: https://github.com/thanatath/devops-challenge/actions
 - DockerHub repository: https://hub.docker.com/repository/docker/1150/devops-challenge
 
+## Playbook
+
+- Ansible Playbook for Docker, Minikube, Kubenetes 
+ (*it's make by my mini server LAB so it's not coverage permission problem case*)
+
 
 ## TODO
-- Try to play Middle level challenge
+- <s>Try to play Middle level challenge</s>
 
 
 
