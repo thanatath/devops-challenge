@@ -1,0 +1,31 @@
+version: "2"
+services:
+  redis: # redis service
+    image: "redis:alpine"
+    hostname: "redis_app"
+    ports:
+      - "6379:6379"
+
+  reverse_proxy: # reverse proxy service
+    image: 1150/devops-challenge:reverse_proxy
+    build:
+      context: .  
+      dockerfile: dockerfile-nginx
+    hostname: "nginx_app"
+    ports:
+      - "8888:8080"
+    
+  backend_api: # node service
+    image: 1150/devops-challenge:backend_api
+    build:
+      context: .  
+      dockerfile: dockerfile-api
+    hostname: "API_app"
+    depends_on:
+      - "redis"
+      - "reverse_proxy"
+    ports:
+      - "3064:3064"
+
+
+    

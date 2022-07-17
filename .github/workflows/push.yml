@@ -1,0 +1,43 @@
+
+name: Push Image
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  TEST:
+    uses: ./.github/workflows/test.yml
+  Push:
+    needs: TEST
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      name: Checkout
+    - uses: actions/setup-node@v3
+      name: Setup Node
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: 'app_api/package-lock.json'
+    - run: npm ci
+      name: Install Dependencies
+      working-directory: app_api
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+    - name: Build Docker Image for Nginx reverse_proxy 
+      run: |
+        docker compose build reverse_proxy
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/devops-challenge:reverse_proxy ${{ secrets.DOCKERHUB_USERNAME }}/devops-challenge:reverse_proxy_${{ steps.get_version.outputs.VERSION }}
+    - name: Build Docker Image for API
+      run: |
+        docker compose build backend_api
+        docker tag ${{ secrets.DOCKERHUB_USERNAME }}/devops-challenge:backend_api ${{ secrets.DOCKERHUB_USERNAME }}/devops-challenge:backend_api_${{ steps.get_version.outputs.VERSION }}
+    - name: Docker Login
+      run: echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+    - name: Docker Push reverse_proxy
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-challenge:reverse_proxy_${{ steps.get_version.outputs.VERSION }}
+    - name: Docker Push API
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/devops-challenge:backend_api_${{ steps.get_version.outputs.VERSION }}
